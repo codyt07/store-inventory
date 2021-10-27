@@ -59,7 +59,7 @@ def quantity_checker(product_quantity):
             return float(num_check)
 
 def duplicate_checker(product_name_check):
-    print("Checking for prior entries....")
+    print("Checking for prior entries...")
     checking = session.query(Product).filter(Product.name.like('%' + product_name_check + '%')).all()
     question = False
     for returns in checking:
@@ -72,7 +72,6 @@ def duplicate_checker(product_name_check):
                         \rEnter B to Exit
                         \rCommand: ''')
             if proceed.lower() == "a":
-                pass
                 question = False
             elif proceed.lower() == "b":
                 print("\nReturning to Main Menu")
@@ -81,6 +80,7 @@ def duplicate_checker(product_name_check):
             else:
                 input('''Valid Command Not Entered. 
                 \rPress Enter to Try Again''')
+    return product_name_check
                 
 def date_checker(product_date):
     time_error = True
@@ -95,20 +95,26 @@ def date_checker(product_date):
                             \rMM-DD-YYYY Example: 05-06-2018
                             \rEnter New Date: ''')
 
+def confirmation(verified_product, price_verified, quantity_verified, date_verified):
+    confirm = input(f'''\n*** Confirmation ***
+            \rProduct Name: {verified_product}
+            \rPrice: {price_verified / 100}
+            \rQuantity: {quantity_verified}
+            \rDate: {date_verified}
+            \nEnter A to confirm
+            \rEnter B to cancel and return back to the main menu''')
 
 def add_product():
     print("\nAdd Product")
     product_name_check = input("Enter Product Name: ")
-    duplicate_checker(product_name_check)
+    verified_product = duplicate_checker(product_name_check)
     product_price = input("Enter Product Price Without Currency Symbol: ")
     price_verified = price_checker(product_price)
-    print(price_verified)
     product_quantity = input('Enter Product Quantity: ')
     quantity_verified = quantity_checker(product_quantity)
-    print(quantity_verified)
     product_date = input('Enter Date (MM-DD-YYYY) (2018-01-15): ')
-    date_checker(product_date)
-    print("** Adding product to Database! **")  
+    date_verified = date_checker(product_date)
+    confirmation(verified_product, price_verified, quantity_verified, date_verified)
 
 def menu():
     selection = input('''\n*** Cody's Store Inventory Manager ***
@@ -134,18 +140,3 @@ def menu():
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
     menu()
-
-
-# def price_cleaner_db_initializer(row):
-#     price_to_clean = row[1]
-#     without_sign = price_to_clean.replace("$", "")
-#     try:
-#         without_sign_float = float(without_sign)
-#     except ValueError:
-#         input('''\n ** An invalid number was entered **'
-#                 \rPlease Enter a valid number with or without the currency symbol
-#                 \rExample: 10.99
-#                 \rPress Enter To Try Again/Continue...
-#                 \r''')
-#     else:
-#         return int(without_sign_float * 100)
