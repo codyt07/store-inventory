@@ -1,6 +1,7 @@
-from models import (Base, price_cleaner_db_initializer, session, engine, Product)
-from datetime import date, datetime
+from models import (Base, session, engine, Product)
+from datetime import datetime
 import time
+import csv
 
 def view_summary():
     id_list = []
@@ -12,7 +13,7 @@ def view_summary():
     try:
         view_product = session.query(Product).filter(
             Product.id == product_selection).first()
-        easy_date = view_product.updated.strftime('%m-%d-%Y')
+        easy_date = view_product.date_updated.strftime('%m-%d-%Y')
         selection = input(f'''\nProduct Information for Product ID {product_selection}
                 \r* Product Name: {view_product.name}
                 \r* Product Price: ${view_product.price / 100}
@@ -138,7 +139,7 @@ def update_product(update_id):
                                 \rEnter C To Go Back to Product Modification Menu
                                 \rCommand: ''')
                 if confirm.lower() == 'a':
-                    to_update.updated = update_date
+                    to_update.date_updated = update_date
                     session.commit()
                     new_date = False
                     print('''\nProduct Date Updated!
@@ -256,7 +257,7 @@ def confirmation(verified_product, price_verified, quantity_verified, date_verif
     loop = True
     while loop == True:
         if confirm.lower() == "a":
-            new_product = Product(name=verified_product.title(), price=price_verified, quantity=quantity_verified, updated=date_verified)
+            new_product = Product(name=verified_product.title(), price=price_verified, quantity=quantity_verified, date_updated=date_verified)
             session.add(new_product)
             session.commit()
             print(f'Product: {verified_product.title()} Added to the Database!')
@@ -268,6 +269,24 @@ def confirmation(verified_product, price_verified, quantity_verified, date_verif
             menu()
         else:
             confirm = input(f'\nInvalid input \rEnter A Command:')
+
+def backup_csv():
+    with open('backup.csv', 'a') as csvfile:
+        field_names = ['product_name', 'product_price', 'product_quantity', 'date_updated']
+        backup_writer = csv.DictWriter(csvfile, fieldnames=field_names)
+        backup_writer.writeheader()
+    #Pull Database
+        info = session.query(Product)
+        for rows in info:
+            product_name = rows.name
+            product_price ='$' + str(rows.price / 100)
+            product_quantity = rows.quantity
+            date_updated = rows.date_updated.strftime('%m/%d/%Y')
+            backup_writer.writerow({
+                'product_name': product_name,
+                'product_price': product_price,
+                'product_quantity': product_quantity,
+                'date_updated': date_updated})
 
 def add_product():
     print("\nAdd Product")
@@ -295,7 +314,11 @@ def menu():
     elif selection.lower() == "a":
         add_product()
     elif selection.lower() == "b":
-        pass
+        backup_csv()
+        print('''\nBackup File "backup.csv" Created!
+                \rReturning Back To Menu''')
+        time.sleep(1.5)
+        menu()
     elif selection.lower() == 'q':
         print('Thank you for using this program!')
         exit()
@@ -303,7 +326,6 @@ def menu():
         input('''\n*** A Valid Command Was Not Entered ***
                 \rPress Enter To Try Again...''')
         menu()
-
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)

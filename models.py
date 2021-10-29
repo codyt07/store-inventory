@@ -3,8 +3,9 @@ from sqlalchemy.ext.declarative import declarative_base
 import csv
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
+import pandas as pd
 
-engine = create_engine('sqlite:///inventory.db', echo=False)
+engine = create_engine('sqlite:///inventory.db', echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 Base = declarative_base()
@@ -15,10 +16,10 @@ class Product(Base):
     name = Column(String)
     price = Column(Integer)
     quantity = Column(Integer)
-    updated = Column(Date)
+    date_updated = Column(Date)
 
 def __repr__(self):
-    return f'<User(name={self.name}, quantity={self.quantity}, price={self.price}, updated={self.updated}'
+    return f'<User(name={self.name}, quantity={self.quantity}, price={self.price}, date_updated={self.date_updated}'
 
 def csv_reader():
     with open('inventory.csv', newline='') as inventory_csv:
@@ -26,7 +27,8 @@ def csv_reader():
         next(inventory_reader)
         rows = list(inventory_reader)
         for row in rows:
-            add_to_db = Product(name=row[0], price=price_cleaner_db_initializer(row), quantity=quantity_db_initializer(row), updated=date_cleaner_db_initializer(row))
+            add_to_db = Product(name=row[0], price=price_cleaner_db_initializer(
+                row), quantity=quantity_db_initializer(row), date_updated=date_cleaner_db_initializer(row))
             session.add(add_to_db)
             session.commit()
 
@@ -57,6 +59,8 @@ def date_cleaner_db_initializer(row):
         except ValueError:
             pass
 
-
-
+if __name__ == '__main__':
+    Base.metadata.create_all(engine)
+    csv_reader()
+    
 
