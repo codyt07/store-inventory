@@ -1,4 +1,4 @@
-from models import (Base, session, engine, Product)
+from models import (session, Product)
 from datetime import datetime
 import time
 import csv
@@ -258,11 +258,29 @@ def confirmation(verified_product, price_verified, quantity_verified, date_verif
     while loop == True:
         if confirm.lower() == "a":
             new_product = Product(name=verified_product.title(), price=price_verified, quantity=quantity_verified, date_updated=date_verified)
-            session.add(new_product)
-            session.commit()
-            print(f'Product: {verified_product.title()} Added to the Database!')
-            time.sleep(1.5)
-            menu()
+            check_double = session.query(Product).filter(
+                Product.name == new_product.name).one_or_none()
+            if check_double == None:
+                session.add(new_product)
+                session.commit()
+                print(f'Product: {verified_product.title()} Added to the Database!')
+                time.sleep(1.5)
+                menu()
+            else:
+                if new_product.date_updated.date() > check_double.date_updated:
+                    print('''\nDuplicate was found in Database with Older Date!
+                            \rAdding this item!''')
+                    session.delete(check_double)
+                    session.add(new_product)
+                    session.commit()
+                    print(f'Product: {verified_product.title()} Added to the Database!')
+                    time.sleep(1.5)
+                    menu()
+                else:
+                    print('''\n** Error! Duplicate Item in Database with Newer Date! ** 
+                            \r** Returning to Main Menu **''')
+                    menu()
+
         elif confirm.lower() == 'b':
             print('\nReturn to Main Menu')
             loop = False
@@ -328,5 +346,4 @@ def menu():
         menu()
 
 if __name__ == '__main__':
-    Base.metadata.create_all(engine)
     menu()

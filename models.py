@@ -3,9 +3,9 @@ from sqlalchemy.ext.declarative import declarative_base
 import csv
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
-import pandas as pd
 
-engine = create_engine('sqlite:///inventory.db', echo=True)
+
+engine = create_engine('sqlite:///inventory.db', echo=False)
 Session = sessionmaker(bind=engine)
 session = Session()
 Base = declarative_base()
@@ -29,9 +29,19 @@ def csv_reader():
         for row in rows:
             add_to_db = Product(name=row[0], price=price_cleaner_db_initializer(
                 row), quantity=quantity_db_initializer(row), date_updated=date_cleaner_db_initializer(row))
-            session.add(add_to_db)
-            session.commit()
-
+            check_double = session.query(Product).filter(Product.name==add_to_db.name).one_or_none()
+            if check_double == None:
+                session.add(add_to_db)
+                session.commit()
+            else:
+                if add_to_db.date_updated.date() > check_double.date_updated:
+                    session.delete(check_double)
+                    session.add(add_to_db)
+                    session.commit()
+                else:
+                    pass
+            
+            
 def price_cleaner_db_initializer(row):
     price_to_clean = row[1]
     without_sign = price_to_clean.replace("$", "")
@@ -58,6 +68,7 @@ def date_cleaner_db_initializer(row):
             return date_time_obj
         except ValueError:
             pass
+
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
