@@ -35,13 +35,14 @@ def csv_reader():
                 session.commit()
             else:
                 if add_to_db.date_updated.date() > check_double.date_updated:
-                    session.delete(check_double)
-                    session.add(add_to_db)
+                    check_double.name = add_to_db.name
+                    check_double.price = add_to_db.price
+                    check_double.quantity = add_to_db.quantity
+                    check_double.date_updated = add_to_db.date_updated
                     session.commit()
                 else:
                     pass
-            
-            
+     
 def price_cleaner_db_initializer(row):
     price_to_clean = row[1]
     without_sign = price_to_clean.replace("$", "")
