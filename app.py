@@ -1,4 +1,5 @@
-from models import (session, Product)
+from models import (csv_reader, session, Product, engine)
+import models
 from datetime import datetime
 import time
 import csv
@@ -346,4 +347,6 @@ def menu():
         menu()
 
 if __name__ == '__main__':
+    models.Base.metadata.create_all(engine)
+    csv_reader()
     menu()

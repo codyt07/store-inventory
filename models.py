@@ -71,7 +71,6 @@ def date_cleaner_db_initializer(row):
 
 
 if __name__ == '__main__':
-    Base.metadata.create_all(engine)
-    csv_reader()
+    print("Please Use App.Py instead!")
     
 
