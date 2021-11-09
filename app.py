@@ -299,7 +299,7 @@ def backup_csv():
         info = session.query(Product)
         for rows in info:
             product_name = rows.name
-            product_price ='$' + str(rows.price / 100)
+            product_price ='$' + str(format(rows.price / 100, '.2f'))
             product_quantity = rows.quantity
             date_updated = rows.date_updated.strftime('%m/%d/%Y')
             backup_writer.writerow({
