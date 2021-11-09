@@ -3,7 +3,6 @@ import models
 from datetime import datetime
 import time
 import csv
-from math import pi
 
 def view_summary():
     id_list = []
