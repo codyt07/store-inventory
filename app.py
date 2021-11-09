@@ -3,6 +3,7 @@ import models
 from datetime import datetime
 import time
 import csv
+from math import pi
 
 def view_summary():
     id_list = []
@@ -17,7 +18,7 @@ def view_summary():
         easy_date = view_product.date_updated.strftime('%m-%d-%Y')
         selection = input(f'''\nProduct Information for Product ID {product_selection}
                 \r* Product Name: {view_product.name}
-                \r* Product Price: ${view_product.price / 100}
+                \r* Product Price: ${format(view_product.price / 100, '.2f')}
                 \r* Product Quantity: {view_product.quantity}
                 \r* Information Last Updated: {easy_date}
                 \nEnter A To Return To Main Menu
@@ -184,7 +185,7 @@ def price_checker(product_price):
                                     \rNew Entry: ''')
         else:
             price_error = False
-            return int(product_price_check * 100)
+            return float(product_price_check * 100)
 
 def quantity_checker(product_quantity):
     quantity_error = True
